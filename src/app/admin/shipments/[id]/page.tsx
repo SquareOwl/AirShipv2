@@ -12,7 +12,7 @@ export default async function AdminShipmentDetailPage({
 
   const { data, error } = await supabase
     .from("shipment_requests")
-    .select("*")
+    .select("*, shipment_packages(*)")
     .eq("id", id)
     .single();
 
@@ -31,10 +31,42 @@ export default async function AdminShipmentDetailPage({
         <strong>Status:</strong> {data.status}
       </div>
       <div>
+        <strong>Ship From:</strong> {data.ship_from_name}, {data.ship_from_address1}, {data.ship_from_city}, {data.ship_from_state} {data.ship_from_postal}, {data.ship_from_country}
+      </div>
+      <div>
+        <strong>Shipper Contact:</strong> {data.shipper_email} · {data.shipper_phone}
+      </div>
+      <div>
         <strong>Ship To:</strong> {data.ship_to_name}, {data.ship_to_address1}, {data.ship_to_city}, {data.ship_to_state} {data.ship_to_postal}, {data.ship_to_country}
       </div>
       <div>
-        <strong>Package:</strong> {data.package_weight_lbs} lbs
+        <strong>Recipient Contact:</strong> {data.recipient_email} · {data.recipient_phone}
+      </div>
+      {data.declared_value ? (
+        <div>
+          <strong>Declared Value:</strong> ${data.declared_value}
+        </div>
+      ) : null}
+      {data.contents_description ? (
+        <div>
+          <strong>Contents:</strong> {data.contents_description}
+        </div>
+      ) : null}
+      {data.pickup_date ? (
+        <div>
+          <strong>Requested pickup:</strong> {data.pickup_date}
+        </div>
+      ) : null}
+      <div>
+        <strong>Packages:</strong>
+        <ul style={{ margin: "8px 0 0 18px" }}>
+          {(data.shipment_packages ?? []).map((pkg: any) => (
+            <li key={pkg.id}>
+              {pkg.weight_lbs} lbs
+              {pkg.length_in ? ` · ${pkg.length_in}x${pkg.width_in ?? "?"}x${pkg.height_in ?? "?"} in` : ""}
+            </li>
+          ))}
+        </ul>
       </div>
       {data.reference ? (
         <div>
